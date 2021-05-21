@@ -13,5 +13,16 @@ UCLASS()
 class HIDESEEKWGHW7_API AHSCharacterPlayer : public AHSCharacter
 {
 	GENERATED_BODY()
-	
+
+public:
+	AHSCharacterPlayer();
+
+protected:
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Components")
+		class UCameraComponent* CameraComp;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Components")
+		class USpringArmComponent* SpringArmComp;
+
 };

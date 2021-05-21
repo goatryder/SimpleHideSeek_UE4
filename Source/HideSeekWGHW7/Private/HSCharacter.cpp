@@ -2,6 +2,7 @@
 
 
 #include "HSCharacter.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 // Sets default values
 AHSCharacter::AHSCharacter()
@@ -50,11 +51,3 @@ void AHSCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-// Called to bind functionality to input
-void AHSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
