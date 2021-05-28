@@ -4,6 +4,8 @@
 #include "HSCharacter.h"
 #include "GameFramework/PawnMovementComponent.h"
 
+#include "Components/HSTeamComponent.h"
+
 // Sets default values
 AHSCharacter::AHSCharacter()
 {
@@ -36,6 +38,9 @@ AHSCharacter::AHSCharacter()
 			GetMesh()->SetAnimInstanceClass(FoundMeshAnimClass.Object->GetAnimBlueprintGeneratedClass());
 		}
 	}
+
+	// setup team component
+	TeamComp = CreateDefaultSubobject<UHSTeamComponent>(TEXT("TeamComponent"));
 }
 
 // Called when the game starts or when spawned
