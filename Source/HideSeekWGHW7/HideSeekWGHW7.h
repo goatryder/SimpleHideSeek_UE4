@@ -4,3 +4,4 @@
 
 #include "CoreMinimal.h"
 
+const FString EnumToStringLocal(const TCHAR* Enum, int32 EnumValue);

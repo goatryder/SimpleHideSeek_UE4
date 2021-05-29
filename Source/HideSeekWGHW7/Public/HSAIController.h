@@ -10,6 +10,7 @@
 /**
  * 
  */
+
 UCLASS()
 class HIDESEEKWGHW7_API AHSAIController : public AAIController
 {
@@ -22,7 +23,7 @@ public:
 	// Gets called when the perception component updates. This is
 	// where check to see if the PlayerCharacter was detected.
 	UFUNCTION()
-		void OnPawnDetected(const TArray<AActor*>& DetectedPawns);
+		void OnPawnDetected(const TArray<AActor*>& DetectedActors);
 
 protected:
 
@@ -37,6 +38,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
 		float PeripheralVisionAngleDegrees;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+		FName BBKey_PreyActor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+		FName BBKey_HunterActor;
+
+	// Is Seeker character already spot hiding character?
+	static bool HasHunterActor(AHSAIController* AICon);
+	// Is Hiding character already has seeker character?
+	static bool HasPreyActor(AHSAIController* AICon);
+	
+	// Set BB HunterActor Value
+	static void SetHunterActor(AHSAIController* AICon, AActor* HunterActor);
+	// Set BB PreyActor Value
+	static void SetPreyActor(AHSAIController* AICon, AActor* PrayActor);
+
 	// Called when the AIController is taken over.
 	virtual void OnPossess(APawn* PossesedPawn) override;
 	
@@ -45,12 +62,9 @@ protected:
 
 public:
 
-	UFUNCTION(BlueprintCallable)
-		static TArray<FVector> GetCheckedPositions() { return CheckedPositions; }
+	static TArray<FVector> GetCheckedPositions() { return CheckedPositions; }
 
-	UFUNCTION(BlueprintCallable)
-		static void AddCheckedPosition(FVector Position) { CheckedPositions.Add(Position); }
+	static void AddCheckedPosition(FVector Position) { CheckedPositions.Add(Position); }
 
-	UFUNCTION(BlueprintCallable)
-		static void ClearCheckedPositions() { CheckedPositions.Empty(); }
+	static void ClearCheckedPositions() { CheckedPositions.Empty(); }
 };

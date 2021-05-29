@@ -18,16 +18,16 @@ UHSTeamComponent::UHSTeamComponent()
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance> FoundMaterial_Blue(TEXT("/Game/Mannequin/Character/Materials/M_Male_Body_Blue.M_Male_Body_Blue"));
 	if (FoundMaterial_Blue.Succeeded())
 	{
-		MaterialTeamBlue = FoundMaterial_Blue.Object;
+		MaterialTeamSeek = FoundMaterial_Blue.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance> FoundMaterial_Red(TEXT("/Game/Mannequin/Character/Materials/M_Male_Body_Red.M_Male_Body_Red"));
 	if (FoundMaterial_Red.Succeeded())
 	{
-		MaterialTeamRed = FoundMaterial_Red.Object;
+		MaterialTeamHide = FoundMaterial_Red.Object;
 	}
 
-	bTeamIsRed = false;
+	TeamType = ETeamType::Hide;
 
 	// try to setup character
 	CharacterOwner = Cast<AHSCharacter>(GetOwner());
@@ -41,7 +41,7 @@ void UHSTeamComponent::BeginPlay()
 	
 	TeamComponents.Add(this);
 
-	SetTeam(bTeamIsRed);
+	SetTeam(TeamType);
 }
 
 
@@ -53,32 +53,33 @@ void UHSTeamComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// ...
 }
 
-void UHSTeamComponent::SetTeam(bool bNewTeamIsRed)
+void UHSTeamComponent::SetTeam(ETeamType NewTeamType)
 {
-	bTeamIsRed = bNewTeamIsRed;
+	TeamType = NewTeamType;
 
-	if (!CharacterOwner)
+	switch (TeamType)
 	{
-		return;
-	}
+	case ETeamType::Hide:
+		if (CharacterOwner && MaterialTeamHide)
+		{
+			CharacterOwner->GetMesh()->SetMaterial(0, MaterialTeamHide);
+		}
+		break;
 
-	if (bTeamIsRed)
-	{
-		if (MaterialTeamRed)
+	case ETeamType::Seek:
+		if (CharacterOwner && MaterialTeamSeek)
 		{
-			CharacterOwner->GetMesh()->SetMaterial(0, MaterialTeamRed);
+			CharacterOwner->GetMesh()->SetMaterial(0, MaterialTeamSeek);
 		}
-	}
-	else
-	{
-		if (MaterialTeamBlue)
-		{
-			CharacterOwner->GetMesh()->SetMaterial(0, MaterialTeamBlue);
-		}
+		break;
+	
+	default:
+		break;
 	}
 
 	// notify team changed
-	NotifyTeamCompTeamChanged.Broadcast(this, CharacterOwner, bNewTeamIsRed);
+	NotifyTeamCompTeamChanged.Broadcast(this, CharacterOwner, TeamType);
+
 }
 
 void UHSTeamComponent::DestroyComponent(bool bPromoteChildren)
@@ -87,7 +88,7 @@ void UHSTeamComponent::DestroyComponent(bool bPromoteChildren)
 	TeamComponents.Remove(this);
 }
 
-TArray<UHSTeamComponent*> UHSTeamComponent::GetTeamComponents(bool bTeamRed)
+TArray<UHSTeamComponent*> UHSTeamComponent::GetTeamComponents(ETeamType RequestedTeam)
 {
 	TArray<UHSTeamComponent*> TeamComps;
 
@@ -95,7 +96,7 @@ TArray<UHSTeamComponent*> UHSTeamComponent::GetTeamComponents(bool bTeamRed)
 	{
 		if (TeamComp.IsValid())
 		{
-			if (TeamComp.Get()->TeamIsRed() == bTeamRed)
+			if (TeamComp.Get()->GetTeam() == RequestedTeam)
 			{
 				TeamComps.Add(TeamComp.Get());
 			}

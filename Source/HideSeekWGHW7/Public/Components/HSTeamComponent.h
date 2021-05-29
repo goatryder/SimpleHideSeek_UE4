@@ -4,12 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "HSTypes.h"
 #include "HSTeamComponent.generated.h"
 
 class UMaterialInstance;
 class AHSCharacter;
 
-DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnTeamCompTeamChange, UHSTeamComponent*, AHSCharacter*, bool bNewTeamIsRed);
+
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnTeamCompTeamChange, UHSTeamComponent*, AHSCharacter*, ETeamType);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HIDESEEKWGHW7_API UHSTeamComponent : public UActorComponent
@@ -25,13 +28,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TeamComp")
-		UMaterialInstance* MaterialTeamBlue;
+		UMaterialInstance* MaterialTeamSeek;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TeamComp")
-		UMaterialInstance* MaterialTeamRed;
+		UMaterialInstance* MaterialTeamHide;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TeamComp")
-		bool bTeamIsRed;
+		ETeamType TeamType;
 
 	AHSCharacter* CharacterOwner;
 
@@ -40,10 +43,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-		bool TeamIsRed() const { return bTeamIsRed; }
+		ETeamType GetTeam() const { return TeamType; }
 	
 	UFUNCTION(BlueprintCallable)
-		void SetTeam(bool bNewTeamIsRed);
+		void SetTeam(ETeamType NewTeamType);
 
 	virtual void DestroyComponent(bool bPromoteChildren = false) override;
 
@@ -51,7 +54,7 @@ public:
 	// Store week ptrs to all team components;
 	static TSet<TWeakObjectPtr<UHSTeamComponent>> TeamComponents;
 
-	static TArray<UHSTeamComponent*> GetTeamComponents(bool bTeamRed);
+	static TArray<UHSTeamComponent*> GetTeamComponents(ETeamType RequestedTeam);
 
 	/** Global notification when HSCharacter team changes */
 	static FOnTeamCompTeamChange NotifyTeamCompTeamChanged;
