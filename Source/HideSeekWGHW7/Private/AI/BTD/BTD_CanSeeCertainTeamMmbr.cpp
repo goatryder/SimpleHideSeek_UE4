@@ -2,7 +2,7 @@
 
 
 #include "AI/BTD/BTD_CanSeeCertainTeamMmbr.h"
-#include "HSAIController.h"
+#include "AI/HSAIController.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISense_Sight.h"
 #include "Components/HSTeamComponent.h"

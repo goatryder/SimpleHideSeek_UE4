@@ -14,6 +14,8 @@ enum class ETeamType : uint8
 UENUM(BlueprintType)
 enum class EHSGameStage : uint8
 {
+	Preparation,
 	Hidding,
 	Seeking,
+	Over,
 };

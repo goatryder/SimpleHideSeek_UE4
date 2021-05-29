@@ -3,7 +3,7 @@
 
 #include "AI/EQC/SeekedPosesQueryContext.h"
 #include "EnvironmentQuery/Items/EnvQueryItemType_Point.h"
-#include "HSAIController.h"
+#include "AI/HSAIController.h"
 
 void USeekedPosesQueryContext::ProvideContext(FEnvQueryInstance& QueryInstance, FEnvQueryContextData& ContextData) const
 {
