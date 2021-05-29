@@ -27,4 +27,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 		UHSTeamComponent* TeamComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+		class USphereComponent* InteractCollision;
 };

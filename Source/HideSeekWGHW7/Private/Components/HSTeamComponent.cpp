@@ -4,17 +4,14 @@
 #include "Components/HSTeamComponent.h"
 #include "GameFramework/Character.h"
 #include "HSCharacter.h"
+#include "Components/SphereComponent.h"
 
 TSet<TWeakObjectPtr<UHSTeamComponent>> UHSTeamComponent::TeamComponents;
 
-
 FOnTeamCompTeamChange UHSTeamComponent::NotifyTeamCompTeamChanged;
 
-// Sets default values for this component's properties
 UHSTeamComponent::UHSTeamComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
-
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance> FoundMaterial_Blue(TEXT("/Game/Mannequin/Character/Materials/M_Male_Body_Blue.M_Male_Body_Blue"));
 	if (FoundMaterial_Blue.Succeeded())
 	{
@@ -33,24 +30,18 @@ UHSTeamComponent::UHSTeamComponent()
 	CharacterOwner = Cast<AHSCharacter>(GetOwner());
 }
 
-
-// Called when the game starts
 void UHSTeamComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (CharacterOwner)
+	{
+		CharacterOwner->InteractCollision->OnComponentBeginOverlap.AddDynamic(this, &UHSTeamComponent::OnOverlapOwnerInteractSphere);
+	}
 	
 	TeamComponents.Add(this);
 
 	SetTeam(TeamType);
-}
-
-
-// Called every frame
-void UHSTeamComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 void UHSTeamComponent::SetTeam(ETeamType NewTeamType)
@@ -64,6 +55,10 @@ void UHSTeamComponent::SetTeam(ETeamType NewTeamType)
 		{
 			CharacterOwner->GetMesh()->SetMaterial(0, MaterialTeamHide);
 		}
+
+		// set can change team to seeker when overlap with other seeker
+		bCanSetTeamSeekOnSeekerOverlap = true;
+
 		break;
 
 	case ETeamType::Seek:
@@ -104,5 +99,23 @@ TArray<UHSTeamComponent*> UHSTeamComponent::GetTeamComponents(ETeamType Requeste
 	}
 
 	return TeamComps;
+}
+
+void UHSTeamComponent::OnOverlapOwnerInteractSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// Try to change team from hide to seek when overlapping with other seeker
+	if (!bCanSetTeamSeekOnSeekerOverlap)
+	{
+		return;
+	}
+
+	if (UHSTeamComponent* OtherTeamComp = Cast<UHSTeamComponent>(OtherActor->GetComponentByClass(UHSTeamComponent::StaticClass())))
+	{
+		if (OtherTeamComp->GetTeam() == ETeamType::Seek)
+		{
+			SetTeam(ETeamType::Seek);
+			bCanSetTeamSeekOnSeekerOverlap = false;
+		}
+	}
 }
 

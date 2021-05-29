@@ -5,12 +5,18 @@
 #include "GameFramework/PawnMovementComponent.h"
 
 #include "Components/HSTeamComponent.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 AHSCharacter::AHSCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	InteractCollision = CreateDefaultSubobject<USphereComponent>(TEXT("InterractSphere"));
+	InteractCollision->SetupAttachment(RootComponent);
+	InteractCollision->InitSphereRadius(200.0f);
+
 
 	// try to setup default mesh and anim bp
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> FoundMesh(TEXT("/Game/Mannequin/Character/Mesh/SK_Mannequin.SK_Mannequin"));

@@ -20,11 +20,9 @@ class HIDESEEKWGHW7_API UHSTeamComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UHSTeamComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TeamComp")
@@ -38,9 +36,10 @@ protected:
 
 	AHSCharacter* CharacterOwner;
 
+	// Can character become seeker if he overlap with other character whoes team is seeker?
+	bool bCanSetTeamSeekOnSeekerOverlap;
+
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
 		ETeamType GetTeam() const { return TeamType; }
@@ -58,4 +57,8 @@ public:
 
 	/** Global notification when HSCharacter team changes */
 	static FOnTeamCompTeamChange NotifyTeamCompTeamChanged;
+
+	UFUNCTION()
+		void OnOverlapOwnerInteractSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

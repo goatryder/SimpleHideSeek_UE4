@@ -14,6 +14,6 @@ class HIDESEEKWGHW7_API UBTTask_AddSeekLocation : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 
-	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
 };
