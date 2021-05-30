@@ -14,6 +14,8 @@ FOnGameStageChange AHSGameMode::NotifyOnGameStage;
 
 AHSGameMode::AHSGameMode()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/_HideAndSeek/BP_CharacterPlayer"));
 	if (PlayerPawnClassFinder.Succeeded())
@@ -57,6 +59,21 @@ void AHSGameMode::StartPlay()
 	HandleHiddingStage();
 }
 
+void AHSGameMode::Tick(float DeltaTime)
+{
+	// Hidding Stage Count Down Timer
+	if (bHiddingStageTimeCntDwnActive)
+	{
+		HiddingStageTimeLeft -= DeltaTime;
+
+		if (HiddingStageTimeLeft < 0.0f)
+		{
+			HiddingStageTimeLeft = 0.0f;
+			bHiddingStageTimeCntDwnActive = false;
+		}
+	}
+}
+
 void AHSGameMode::SetGameStage(EHSGameStage NewGameStage)
 {
 	GameStage = NewGameStage;
@@ -74,6 +91,9 @@ void AHSGameMode::SetGameStage(EHSGameStage NewGameStage)
 void AHSGameMode::HandleHiddingStage()
 {
 	SetGameStage(EHSGameStage::Hidding);
+
+	ResetHiddingStageTimeCntDwn();
+
 	GetWorldTimerManager().SetTimer(TimerHandle_SeekStageCountDown, this, &AHSGameMode::HandleSeekingStage, HiddingStageTime);
 }
 

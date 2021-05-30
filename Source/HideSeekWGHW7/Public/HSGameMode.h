@@ -18,9 +18,12 @@ class HIDESEEKWGHW7_API AHSGameMode : public AGameMode
 	GENERATED_BODY()
 
 	AHSGameMode();
+
 	virtual void BeginDestroy() override;
 
 	virtual void StartPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 
@@ -36,10 +39,19 @@ protected:
 
 	FTimerHandle TimerHandle_SeekStageCountDown;
 
+	// Exists to inform other objects on Hidding Stage Time left, used in AI BT
+	float HiddingStageTimeLeft;
+
+	bool bHiddingStageTimeCntDwnActive;
+
+	void ResetHiddingStageTimeCntDwn() { HiddingStageTimeLeft = HiddingStageTime; bHiddingStageTimeCntDwnActive = true; }
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "HideAndSeek")
 		float HiddingStageTime;
 
 public:
+
+	float GetHiddingStageTimeLeft() const { return HiddingStageTimeLeft; }
 
 	EHSGameStage GetGameStage() const { return GameStage; }
 
