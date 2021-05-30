@@ -7,7 +7,7 @@
 #include "HSTypes.h"
 #include "HSGameMode.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStageChange, EHSGameStage);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnGameStageChange, AHSGameMode*, EHSGameStage);
 
 /**
  * 

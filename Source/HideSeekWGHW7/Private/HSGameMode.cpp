@@ -46,6 +46,8 @@ void AHSGameMode::BeginDestroy()
 
 void AHSGameMode::StartPlay()
 {
+	//UHSTeamComponent::TeamComponents.Empty();
+
 	Super::StartPlay();
 
 	// subscribe to delegate to change blackboard instance synched value "GameStage"
@@ -54,6 +56,10 @@ void AHSGameMode::StartPlay()
 	// subscribe to TeamComp OnTeamChange
 	UHSTeamComponent::NotifyTeamCompTeamChanged.AddUObject(this, &AHSGameMode::OnTeamChangeEvent);
 
+	// Clear AI Locations Caches
+	//AHSAIController::ClearCheckedPositions();
+	//AHSAIController::ClearChosenHideLocations();
+
 	HandleHiddingStage();
 }
 
@@ -61,7 +67,7 @@ void AHSGameMode::SetGameStage(EHSGameStage NewGameStage)
 {
 	GameStage = NewGameStage;
 
-	NotifyOnGameStage.Broadcast(NewGameStage);
+	NotifyOnGameStage.Broadcast(this, NewGameStage);
 
 	/*// Debug
 	if (GEngine)

@@ -6,6 +6,7 @@
 #include "HSCharacter.h"
 #include "Components/HSTeamComponent.h"
 #include "../HideSeekWGHW7.h"
+#include "HSGameMode.h"
 
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -16,6 +17,7 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
 TArray<FVector> AHSAIController::CheckedPositions;
+TArray<FVector> AHSAIController::ChosenHideLocations;
 
 AHSAIController::AHSAIController()
 {
@@ -38,13 +40,14 @@ AHSAIController::AHSAIController()
 	// default bb key names
 	BBKey_PreyActor = FName(TEXT("PreyActor"));
 	BBKey_HunterActor = FName(TEXT("HunterActor"));
+	BBKey_GameStage = FName(TEXT("GameStage"));
 
 	// try to find BT Asset
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> FoundBT(TEXT("/Game/_HideAndSeek/HeyHi/BT_AIHideSeek.BT_AIHideSeek"));
 	if (FoundBT.Succeeded())
 	{
 		BTAsset = FoundBT.Object;
-	}	
+	}
 }
 
 void AHSAIController::BeginPlay()
@@ -76,6 +79,8 @@ void AHSAIController::OnPawnDetected(const TArray<AActor*>& DetectedActors)
 
 	ETeamType ConPawnTeamType = OwnedCharacter->TeamComp->GetTeam();
 	
+	
+
 	// AI Controlled Pawn is Seeker case
 	if (ConPawnTeamType == ETeamType::Seek && !HasPreyActor(this))
 	{
@@ -127,8 +132,41 @@ void AHSAIController::OnPossess(APawn* PossesedPawn)
 	OwnedCharacter = Cast<AHSCharacterAI>(PossesedPawn);
 }
 
-void AHSAIController::HandleGameStageChanged(EHSGameStage NewGameStage)
+void AHSAIController::HandleGameStageChanged(AHSGameMode* GM, EHSGameStage NewGameStage)
 {
+	// Change Blackboard value GameState
+	for (FConstControllerIterator Iterator = GM->GetWorld()->GetControllerIterator(); Iterator; ++Iterator)
+	{
+		if (AController* Con = Iterator->Get())
+		{
+			if (AHSAIController* AICon = Cast<AHSAIController>(Con))
+			{
+				// Debug
+				if (GEngine)
+				{
+					uint32 BBGameStageNum = AICon->GetBlackboardComponent()->GetValue<UBlackboardKeyType_Int>(AICon->BBKey_GameStage);
+
+					FString Msg = FString::Printf(TEXT("[HSAIController] BB GameStage Old: %d"), BBGameStageNum);
+					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Orange, Msg);
+				}
+
+				int GameStageNum = static_cast<uint8>(NewGameStage);
+				AICon->GetBlackboardComponent()->SetValue<UBlackboardKeyType_Int>(AICon->BBKey_GameStage, GameStageNum);
+
+				// Debug
+				if (GEngine)
+				{
+					uint32 BBGameStageNum = AICon->GetBlackboardComponent()->GetValue<UBlackboardKeyType_Int>(AICon->BBKey_GameStage);
+
+					FString Msg = FString::Printf(TEXT("[HSAIController] BB GameStage New: %d"), BBGameStageNum);
+					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Orange, Msg);
+				}
+
+				break;
+			}
+		}
+	}
+
 	// Debug
 	if (GEngine)
 	{
@@ -175,4 +213,14 @@ void AHSAIController::SetPreyActor(AHSAIController* AICon, AActor* PreyActor)
 	{
 		AICon->GetBlackboardComponent()->SetValue<UBlackboardKeyType_Object>(AICon->BBKey_PreyActor, PreyActor);
 	}
+}
+
+void AHSAIController::AddCheckedPosition(FVector Position)
+{
+	CheckedPositions.Add(Position);
+}
+
+void AHSAIController::AddChosenHideLocation(FVector Position)
+{
+	ChosenHideLocations.Add(Position);
 }

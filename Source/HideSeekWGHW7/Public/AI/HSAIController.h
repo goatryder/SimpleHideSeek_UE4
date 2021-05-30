@@ -36,11 +36,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
 		class UBehaviorTree* BTAsset;
-	
+
 	class AHSCharacterAI* OwnedCharacter;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
 		float PeripheralVisionAngleDegrees;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
+		FName BBKey_GameStage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
 		FName BBKey_PreyActor;
@@ -64,14 +67,19 @@ protected:
 	// already checked points where characters can possibly hide;
 	static TArray<FVector> CheckedPositions;
 
+	// chosen hideouts, used to find hide pos on one eqs run and preventing choosing hide location close to another hide location;
+	static TArray<FVector> ChosenHideLocations;
+
 public:
 
 	// Change blackboard instance synched value "GameStage"
-	static void HandleGameStageChanged(EHSGameStage NewGameStage);
+	static void HandleGameStageChanged(class AHSGameMode* GM, EHSGameStage NewGameStage);
 
-	static TArray<FVector> GetCheckedPositions() { return CheckedPositions; }
-
-	static void AddCheckedPosition(FVector Position) { CheckedPositions.Add(Position); }
-
+	static TArray<FVector> &GetCheckedPositions() { return CheckedPositions; }
+	static void AddCheckedPosition(FVector Position);
 	static void ClearCheckedPositions() { CheckedPositions.Empty(); }
+	
+	static const TArray<FVector> &GetChosenHideLocations() { return ChosenHideLocations; }
+	static void AddChosenHideLocation(FVector Position);
+	static void ClearChosenHideLocations() { ChosenHideLocations.Empty(); }
 };

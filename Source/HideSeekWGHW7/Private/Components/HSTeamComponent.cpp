@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "HSCharacter.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "HSGameMode.h"
 
 TSet<TWeakObjectPtr<UHSTeamComponent>> UHSTeamComponent::TeamComponents;
 
@@ -28,6 +30,8 @@ UHSTeamComponent::UHSTeamComponent()
 
 	// try to setup character
 	CharacterOwner = Cast<AHSCharacter>(GetOwner());
+
+	TeamComponents.Add(this);
 }
 
 void UHSTeamComponent::BeginPlay()
@@ -38,8 +42,6 @@ void UHSTeamComponent::BeginPlay()
 	{
 		CharacterOwner->InteractCollision->OnComponentBeginOverlap.AddDynamic(this, &UHSTeamComponent::OnOverlapOwnerInteractSphere);
 	}
-	
-	TeamComponents.Add(this);
 
 	SetTeam(TeamType);
 }
@@ -103,7 +105,9 @@ TArray<UHSTeamComponent*> UHSTeamComponent::GetTeamComponents(ETeamType Requeste
 
 void UHSTeamComponent::OnOverlapOwnerInteractSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bCanSetTeamSeekOnSeekerOverlap || TeamType == ETeamType::Seek)
+	AHSGameMode* GM = Cast<AHSGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	if (!bCanSetTeamSeekOnSeekerOverlap || TeamType == ETeamType::Seek || !GM || GM->GetGameStage() != EHSGameStage::Seeking)
 	{
 		return;
 	}

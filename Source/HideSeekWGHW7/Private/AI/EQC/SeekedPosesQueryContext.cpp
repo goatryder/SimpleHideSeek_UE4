@@ -5,6 +5,8 @@
 #include "EnvironmentQuery/Items/EnvQueryItemType_Point.h"
 #include "AI/HSAIController.h"
 
+#include "DrawDebugHelpers.h"
+
 void USeekedPosesQueryContext::ProvideContext(FEnvQueryInstance& QueryInstance, FEnvQueryContextData& ContextData) const
 {
 	Super::ProvideContext(QueryInstance, ContextData);
@@ -16,7 +18,15 @@ void USeekedPosesQueryContext::ProvideContext(FEnvQueryInstance& QueryInstance, 
 
 	if (AICon)
 	{
+		TArray<FVector> CheckedPositions = AICon->GetCheckedPositions();
+
 		//Set the context SeeingPawn to the provided context data
-		UEnvQueryItemType_Point::SetContextHelper(ContextData, AICon->GetCheckedPositions());
+		UEnvQueryItemType_Point::SetContextHelper(ContextData, CheckedPositions);
+
+		/*// Debug
+		for (FVector& Pos: CheckedPositions)
+		{
+			DrawDebugSphere(GetWorld(), Pos, 50.0f, 12, FColor::Cyan, false, 4.0f);
+		}*/
 	}
 }
