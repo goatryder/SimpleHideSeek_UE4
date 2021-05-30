@@ -48,6 +48,8 @@ void AHSGameMode::BeginDestroy()
 
 void AHSGameMode::StartPlay()
 {
+	// Clear static containers;
+	UHSTeamComponent::TeamComponents.Empty();
 	AHSAIController::ClearCheckedPositions();
 
 	Super::StartPlay();
@@ -80,7 +82,7 @@ void AHSGameMode::SetGameStage(EHSGameStage NewGameStage)
 {
 	GameStage = NewGameStage;
 
-	NotifyOnGameStage.Broadcast(NewGameStage);
+	NotifyOnGameStage.Broadcast(this, NewGameStage);
 
 	/*// Debug
 	if (GEngine)

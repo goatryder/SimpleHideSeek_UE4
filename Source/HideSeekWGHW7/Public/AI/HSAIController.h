@@ -43,6 +43,9 @@ protected:
 		float PeripheralVisionAngleDegrees;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
+		FName BBKey_GameStage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
 		FName BBKey_PreyActor;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
@@ -67,7 +70,7 @@ protected:
 public:
 
 	// Change blackboard instance synched value "GameStage"
-	static void HandleGameStageChanged(EHSGameStage NewGameStage);
+	static void HandleGameStageChanged(class AHSGameMode* GM, EHSGameStage NewGameStage);
 
 	static TArray<FVector> &GetCheckedPositions() { return CheckedPositions; }
 

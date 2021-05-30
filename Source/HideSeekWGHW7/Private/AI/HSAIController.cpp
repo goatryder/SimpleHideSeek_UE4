@@ -6,6 +6,7 @@
 #include "HSCharacter.h"
 #include "Components/HSTeamComponent.h"
 #include "../HideSeekWGHW7.h"
+#include "HSGameMode.h"
 
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -38,6 +39,7 @@ AHSAIController::AHSAIController()
 	// default bb key names
 	BBKey_PreyActor = FName(TEXT("PreyActor"));
 	BBKey_HunterActor = FName(TEXT("HunterActor"));
+	BBKey_GameStage = FName(TEXT("GameStage"));
 
 	// try to find BT Asset
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> FoundBT(TEXT("/Game/_HideAndSeek/HeyHi/BT_AIHideSeek.BT_AIHideSeek"));
@@ -127,14 +129,41 @@ void AHSAIController::OnPossess(APawn* PossesedPawn)
 	OwnedCharacter = Cast<AHSCharacterAI>(PossesedPawn);
 }
 
-void AHSAIController::HandleGameStageChanged(EHSGameStage NewGameStage)
+void AHSAIController::HandleGameStageChanged(AHSGameMode* GM, EHSGameStage NewGameStage)
 {
-	// Debug
-	if (GEngine)
+	// Change Blackboard value GameState
+	for (FConstControllerIterator Iterator = GM->GetWorld()->GetControllerIterator(); Iterator; ++Iterator)
 	{
-		FString MsgStage = TEXT("[HSAIController] OnGameStatgeChange Stage: ") + EnumToStringLocal(TEXT("EHSGameStage"), static_cast<uint8>(NewGameStage));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, MsgStage);
+		if (AController* Con = Iterator->Get())
+		{
+			if (AHSAIController* AICon = Cast<AHSAIController>(Con))
+			{
+				// Debug
+				if (GEngine)
+				{
+					uint32 BBGameStageNum = AICon->GetBlackboardComponent()->GetValue<UBlackboardKeyType_Int>(AICon->BBKey_GameStage);
+
+					FString Msg = FString::Printf(TEXT("[HSAIController] BB GameStage Old: %d"), BBGameStageNum);
+					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Orange, Msg);
+				}
+
+				int GameStageNum = static_cast<uint8>(NewGameStage);
+				AICon->GetBlackboardComponent()->SetValue<UBlackboardKeyType_Int>(AICon->BBKey_GameStage, GameStageNum);
+
+				// Debug
+				if (GEngine)
+				{
+					uint32 BBGameStageNum = AICon->GetBlackboardComponent()->GetValue<UBlackboardKeyType_Int>(AICon->BBKey_GameStage);
+
+					FString Msg = FString::Printf(TEXT("[HSAIController] BB GameStage New: %d"), BBGameStageNum);
+					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Orange, Msg);
+				}
+
+				break;
+			}
+		}
 	}
+
 }
 
 bool AHSAIController::HasHunterActor(AHSAIController* AICon)
