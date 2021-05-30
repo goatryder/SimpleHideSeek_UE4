@@ -5,8 +5,12 @@
 
 #include "HSHUD.h"
 #include "HSCharacterPlayer.h"
+#include "HSCharacterPlayerController.h"
 #include "Components/HSTeamComponent.h"
+#include "AI/HSAIController.h"
 #include "../HideSeekWGHW7.h"
+
+FOnGameStageChange AHSGameMode::NotifyOnGameStage;
 
 AHSGameMode::AHSGameMode()
 {
@@ -18,7 +22,7 @@ AHSGameMode::AHSGameMode()
 		DefaultPawnClass = AHSCharacterPlayer::StaticClass();
 
 	// use our custom Player Controller class
-	PlayerControllerClass = AHSHUD::StaticClass();
+	PlayerControllerClass = AHSCharacterPlayerController::StaticClass();
 
 	// use our custom HUD class
 	static ConstructorHelpers::FClassFinder<AHUD> HUDClassFinder(TEXT("/Game/_HideAndSeek/BP_HUD"));
@@ -30,13 +34,26 @@ AHSGameMode::AHSGameMode()
 	SetGameStage(EHSGameStage::Preparation);
 
 	HiddingStageTime = 10.0f;
+}
 
-	UHSTeamComponent::NotifyTeamCompTeamChanged.AddUObject(this, &AHSGameMode::OnTeamChangeEvent);
+void AHSGameMode::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	// unsubsribe from delegate
+	NotifyOnGameStage.Clear();
 }
 
 void AHSGameMode::StartPlay()
 {
 	Super::StartPlay();
+
+	// subscribe to delegate to change blackboard instance synched value "GameStage"
+	NotifyOnGameStage.AddStatic(AHSAIController::HandleGameStageChanged);
+
+	// subscribe to TeamComp OnTeamChange
+	UHSTeamComponent::NotifyTeamCompTeamChanged.AddUObject(this, &AHSGameMode::OnTeamChangeEvent);
+
 	HandleHiddingStage();
 }
 
@@ -44,18 +61,20 @@ void AHSGameMode::SetGameStage(EHSGameStage NewGameStage)
 {
 	GameStage = NewGameStage;
 
-	// Debug
+	NotifyOnGameStage.Broadcast(NewGameStage);
+
+	/*// Debug
 	if (GEngine)
 	{
 		FString MsgStage = TEXT("New GameMode Stage: ") + EnumToStringLocal(TEXT("EHSGameStage"), static_cast<uint8>(GameStage));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0, FColor::Yellow, MsgStage);
-	}
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, MsgStage);
+	}*/
 }
 
 void AHSGameMode::HandleHiddingStage()
 {
 	SetGameStage(EHSGameStage::Hidding);
-	GetWorldTimerManager().SetTimer(TimerHandle_SeekStageCountDown, this, &AHSGameMode::HandleSeekingStage, HiddingStageTime, false, 0.0);
+	GetWorldTimerManager().SetTimer(TimerHandle_SeekStageCountDown, this, &AHSGameMode::HandleSeekingStage, HiddingStageTime);
 }
 
 void AHSGameMode::HandleSeekingStage()
@@ -65,9 +84,17 @@ void AHSGameMode::HandleSeekingStage()
 
 void AHSGameMode::CheckGameOver()
 {
-	bool bIsGameOver = false;
+	int32 HiddingTeamNum = UHSTeamComponent::GetTeamComponents(ETeamType::Hide).Num();
 
-	if (bIsGameOver)
+	// Debug
+	if (GEngine)
+	{
+		FString Msg = FString::Printf(TEXT("[HSGameMode] OnTeamChange HiddingTeamNum: %d"), HiddingTeamNum);
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, Msg);
+	}
+
+	// No one is in Hide Team, Means all Hidding characters is found
+	if (HiddingTeamNum == 0)
 	{
 		HandleGameOverStage();
 	}
@@ -76,8 +103,7 @@ void AHSGameMode::CheckGameOver()
 void AHSGameMode::HandleGameOverStage()
 {
 	SetGameStage(EHSGameStage::Over);
-
-	RestartGame();
+	//ResetLevel();
 }
 
 void AHSGameMode::OnTeamChangeEvent(UHSTeamComponent* TeamComp, AHSCharacter* Character, ETeamType NewTeam)

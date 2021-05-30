@@ -103,12 +103,12 @@ TArray<UHSTeamComponent*> UHSTeamComponent::GetTeamComponents(ETeamType Requeste
 
 void UHSTeamComponent::OnOverlapOwnerInteractSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// Try to change team from hide to seek when overlapping with other seeker
-	if (!bCanSetTeamSeekOnSeekerOverlap)
+	if (!bCanSetTeamSeekOnSeekerOverlap || TeamType == ETeamType::Seek)
 	{
 		return;
 	}
 
+	// Try to change team from hide to seek when overlapping with other seeker
 	if (UHSTeamComponent* OtherTeamComp = Cast<UHSTeamComponent>(OtherActor->GetComponentByClass(UHSTeamComponent::StaticClass())))
 	{
 		if (OtherTeamComp->GetTeam() == ETeamType::Seek)

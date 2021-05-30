@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Perception/AIPerceptionTypes.h"
+#include "HSTypes.h"
 #include "HSAIController.generated.h"
 
 /**
@@ -30,18 +31,21 @@ protected:
 	void BeginPlay() override;
 
 	// A reference to the hearing perception component.
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
 		class UAISenseConfig_Sight* SightConfig;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
+		class UBehaviorTree* BTAsset;
 	
 	class AHSCharacterAI* OwnedCharacter;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
 		float PeripheralVisionAngleDegrees;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
 		FName BBKey_PreyActor;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AI)
 		FName BBKey_HunterActor;
 
 	// Is Seeker character already spot hiding character?
@@ -61,6 +65,9 @@ protected:
 	static TArray<FVector> CheckedPositions;
 
 public:
+
+	// Change blackboard instance synched value "GameStage"
+	static void HandleGameStageChanged(EHSGameStage NewGameStage);
 
 	static TArray<FVector> GetCheckedPositions() { return CheckedPositions; }
 

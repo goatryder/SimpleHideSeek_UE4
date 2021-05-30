@@ -10,9 +10,7 @@
 class UMaterialInstance;
 class AHSCharacter;
 
-
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnTeamCompTeamChange, UHSTeamComponent*, AHSCharacter*, ETeamType);
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HIDESEEKWGHW7_API UHSTeamComponent : public UActorComponent

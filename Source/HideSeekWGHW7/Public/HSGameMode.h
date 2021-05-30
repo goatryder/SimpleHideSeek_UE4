@@ -7,6 +7,8 @@
 #include "HSTypes.h"
 #include "HSGameMode.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStageChange, EHSGameStage);
+
 /**
  * 
  */
@@ -16,6 +18,7 @@ class HIDESEEKWGHW7_API AHSGameMode : public AGameMode
 	GENERATED_BODY()
 
 	AHSGameMode();
+	virtual void BeginDestroy() override;
 
 	virtual void StartPlay() override;
 
@@ -39,6 +42,8 @@ protected:
 public:
 
 	EHSGameStage GetGameStage() const { return GameStage; }
+
+	static FOnGameStageChange NotifyOnGameStage;
 
 	UFUNCTION()
 		void OnTeamChangeEvent(class UHSTeamComponent* TeamComp, class AHSCharacter* Character, ETeamType NewTeam);

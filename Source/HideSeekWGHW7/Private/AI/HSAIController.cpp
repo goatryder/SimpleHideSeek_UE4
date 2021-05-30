@@ -4,12 +4,16 @@
 #include "AI/HSAIController.h"
 #include "AI/HSCharacterAI.h"
 #include "HSCharacter.h"
+#include "Components/HSTeamComponent.h"
+#include "../HideSeekWGHW7.h"
+
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionComponent.h"
-#include "Components/HSTeamComponent.h"
+
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
-#include "../HideSeekWGHW7.h"
 
 TArray<FVector> AHSAIController::CheckedPositions;
 
@@ -34,6 +38,13 @@ AHSAIController::AHSAIController()
 	// default bb key names
 	BBKey_PreyActor = FName(TEXT("PreyActor"));
 	BBKey_HunterActor = FName(TEXT("HunterActor"));
+
+	// try to find BT Asset
+	static ConstructorHelpers::FObjectFinder<UBehaviorTree> FoundBT(TEXT("/Game/_HideAndSeek/HeyHi/BT_AIHideSeek.BT_AIHideSeek"));
+	if (FoundBT.Succeeded())
+	{
+		BTAsset = FoundBT.Object;
+	}	
 }
 
 void AHSAIController::BeginPlay()
@@ -46,6 +57,14 @@ void AHSAIController::BeginPlay()
 	// observe pawn detection
 	GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AHSAIController::OnPawnDetected);
 
+	if (BTAsset)
+	{
+		RunBehaviorTree(BTAsset);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Please select BTAsset for HSAIController instance"));
+	}
 }
 
 void AHSAIController::OnPawnDetected(const TArray<AActor*>& DetectedActors)
@@ -106,6 +125,16 @@ void AHSAIController::OnPossess(APawn* PossesedPawn)
 	Super::OnPossess(PossesedPawn);
 
 	OwnedCharacter = Cast<AHSCharacterAI>(PossesedPawn);
+}
+
+void AHSAIController::HandleGameStageChanged(EHSGameStage NewGameStage)
+{
+	// Debug
+	if (GEngine)
+	{
+		FString MsgStage = TEXT("[HSAIController] OnGameStatgeChange Stage: ") + EnumToStringLocal(TEXT("EHSGameStage"), static_cast<uint8>(NewGameStage));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, MsgStage);
+	}
 }
 
 bool AHSAIController::HasHunterActor(AHSAIController* AICon)
