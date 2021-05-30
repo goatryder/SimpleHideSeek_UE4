@@ -27,15 +27,11 @@ AHSGameMode::AHSGameMode()
 	PlayerControllerClass = AHSCharacterPlayerController::StaticClass();
 
 	// use our custom HUD class
-	static ConstructorHelpers::FClassFinder<AHUD> HUDClassFinder(TEXT("/Game/_HideAndSeek/BP_HUD"));
-	if (HUDClassFinder.Succeeded())
-		HUDClass = HUDClassFinder.Class;
-	else
-		HUDClass = AHSHUD::StaticClass();
+	HUDClass = AHSHUD::StaticClass();
 	
 	SetGameStage(EHSGameStage::Preparation);
 
-	HiddingStageTime = 10.0f;
+	HiddingStageTime = 15.0f;
 }
 
 void AHSGameMode::BeginDestroy()
