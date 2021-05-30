@@ -48,6 +48,8 @@ void AHSGameMode::BeginDestroy()
 
 void AHSGameMode::StartPlay()
 {
+	AHSAIController::ClearCheckedPositions();
+
 	Super::StartPlay();
 
 	// subscribe to delegate to change blackboard instance synched value "GameStage"

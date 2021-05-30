@@ -23,13 +23,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TeamComp")
+	UPROPERTY(EditDefaultsOnly, Category = "TeamComp")
 		UMaterialInstance* MaterialTeamSeek;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TeamComp")
+	UPROPERTY(EditDefaultsOnly, Category = "TeamComp")
 		UMaterialInstance* MaterialTeamHide;
 
-	UPROPERTY(EditDefaultsOnly, Category = "TeamComp")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TeamComp")
 		ETeamType TeamType;
 
 	AHSCharacter* CharacterOwner;

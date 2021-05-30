@@ -69,7 +69,7 @@ public:
 	// Change blackboard instance synched value "GameStage"
 	static void HandleGameStageChanged(EHSGameStage NewGameStage);
 
-	static TArray<FVector> GetCheckedPositions() { return CheckedPositions; }
+	static TArray<FVector> &GetCheckedPositions() { return CheckedPositions; }
 
 	static void AddCheckedPosition(FVector Position) { CheckedPositions.Add(Position); }
 
